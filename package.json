@@ -22,7 +22,7 @@
     "test": "node server.js"
   },
   "dependencies": {
-    "bl": "^1.2.1",
+   "bl": "^1.2.1",
     "express": "^4.16.2",   "pg": "7.3.0"
-  }
+, "twilio": "3.11.0"  }
 }
