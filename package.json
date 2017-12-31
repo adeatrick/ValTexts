@@ -1,0 +1,28 @@
+{
+  "name": "valtexts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adeatrick/WhatsAtVal.git"
+  },
+  "engines": {
+    "node": "6.11.1",
+    "npm": "3.10.10"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/adeatrick/WhatsAtVal/issues"
+  },
+  "homepage": "https://github.com/adeatrick/WhatsAtVal#readme",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node server.js"
+  },
+  "dependencies": {
+    "bl": "^1.2.1",
+    "express": "^4.16.2",   "pg": "7.3.0"
+  }
+}
