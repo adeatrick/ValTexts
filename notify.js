@@ -1,6 +1,7 @@
 var https = require('https');
 var twilio = require('twilio');
 var bl = require('bl');
+var redisClient = require('redis').createClient(process.env.REDIS_URL);
 var client = new twilio(process.env.twilio_sid, process.env.twilio_auth);
 
 function notify(number, message){

@@ -4,3 +4,6 @@ npm-debug.log
 
 #local heroku things
 .env
+
+#database testing
+testredis.js
