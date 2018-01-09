@@ -31,9 +31,10 @@ app.get('/verifyform', function(req, res){
 //Receives incoming sms's
 app.post('/sms', function(req, res){
 
-  phone = req.body.From //Format of '+11234567890', notably including the extra +1.
-  text = req.body.Body.toLowerCase()
-  unsub = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"];
+  let phone = req.body.From //Format of '+11234567890', notably including the extra +1.
+  let text = req.body.Body.toLowerCase()
+  console.log(text)
+  let unsub = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"];
   if(unsub.indexOf(text) !== -1){
     let redisClient = redis.createClient(process.env.REDIS_URL);
     redisClient.select(0, function(){
@@ -63,6 +64,7 @@ app.post('/sms', function(req, res){
     });
   }
   else{
+    console.log("SEND NOW")
     const twiml = new MessagingResponse();
     twiml.message("For help and FAQ, please visit https://valtexts.herokuapp.com. To view today's menu, visit https://whatsatval.com. To unsubscribe, text \"STOP\"");
     res.writeHead(200, {'Content-Type': 'text/xml'});
