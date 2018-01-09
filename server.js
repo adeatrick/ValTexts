@@ -1,8 +1,9 @@
 const https = require('https');
+const path = require('path');
 const querystring = require('querystring');
 const express = require('express');
 const app = express();
-const redisClient = require('redis').createClient(process.env.REDIS_URL);
+const redis = require('redis');
 const twilio = require('twilio');
 const twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
 const MessagingResponse = twilio.twiml.MessagingResponse;
@@ -12,15 +13,26 @@ var Notifier = require('./notify')
 var cronJobMap = {};
 
 // ==============================================
+// TODO: Implement current day vs. next day menu functionality.
+// TODO: Make it so that an incoming text reading something specific like "Current" or "Val Now" texts back the day's full menu, or maybe the next meal.
 // ==============================================
 
 app.set('port', (process.env.PORT || 5000));
 app.disable('x-powered-by');
 app.use(bodyParser.json());
 
+app.get('/', function(req, res){
+  res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
+});
+
+app.get('/verifyform', function(req, res){
+  res.sendFile(path.join(__dirname, 'Frontend', 'verifyform.html'));
+});
+
 //Receives incoming sms's
 app.post('/sms', function(req, res){
 
+  let redisClient = redis.createClient(process.env.REDIS_URL);
   const twiml = new MessagingResponse();
 
   phone = req.body.From //Format of '+11234567890', notably including the extra +1.
@@ -31,9 +43,11 @@ app.post('/sms', function(req, res){
       redisClient.get(phone, (err, reply) => {
         if(err){
           console.log(err);
+          redisClient.quit();
         }
         else if(reply == null){
-          console.log("Already unsubscribed: " + phone)
+          console.log("Already unsubscribed: " + phone);
+          redisClient.quit();
         }
         else{ //Unsubscribe
           let userData = JSON.parse(reply);
@@ -42,6 +56,7 @@ app.post('/sms', function(req, res){
             if(err){
               console.log(err);
             }
+            redisClient.quit();
           });
           if(phone in cronJobMap){
             cronJobMap[phone].stop();
@@ -60,13 +75,22 @@ app.post('/sms', function(req, res){
 //Receives new signups
 app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a userdata object passed as the request body.
 
-  //TODO: server side verification/formatting on phone number. Should be formatted '+11234567890' with the extra '+1' at the start.
+  let redisClient = redis.createClient(process.env.REDIS_URL);
 
   redisClient.select(1, function(){
-    let phone = querystring.unescape(req.params.phone);
+    let phone = formatPhone(querystring.unescape(req.params.phone));
+    if(!phone){
+      res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
+      redisClient.quit();
+      return;
+    }
+
     let userData = req.body;
+    userData.phone = phone;
+
     if(!checkUserData(userData)){ //If userData does not meet the template specifications.
       res.status(400).send(JSON.stringify({err:"userData did not meet template specifications."}));
+      redisClient.quit();
       return;
     }
     userData.securityCode = (Math.floor(Math.random() * 900) + 100).toString(); //Random number between 100 and 999.
@@ -77,16 +101,19 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
     }).then((message) => {
       if(message.errorMessage){
         res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
+        redisClient.quit();
         return;
       }
       redisClient.set(phone, JSON.stringify(userData), (err) => {
         if(err){
           console.log(err);
           res.sendStatus(500);
+          redisClient.quit();
           return;
         }
         redisClient.expire(phone, 300);
         res.sendStatus(200);
+        redisClient.quit();
       });
     });
   });
@@ -96,22 +123,30 @@ app.post('/verify/:phone/:securityCode', function(req, res){
 
   //TODO: server side verification/formatting on phone number. Should be formatted '+11234567890' with the extra '+1' at the start.
   //TODO: server side verification on options passed in body. If they don't match the expected format, reject the entry!
-
-  let phone = req.params.phone
+  let phone = formatPhone(querystring.unescape(req.params.phone));
   let securityCode = req.params.securityCode
 
+  if(!phone){
+    res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
+    return;
+  }
+
+  let redisClient = redis.createClient(process.env.REDIS_URL);
   redisClient.select(1, function(err){
     if(err){
       res.sendStatus(500);
+      redisClient.quit();
       return;
     }
     redisClient.get(phone, (err, reply) => {
       if(err){
         res.sendStatus(500);
+        redisClient.quit();
         return;
       }
       else if(reply == null){
         res.status(404).send(JSON.stringify({err:"Phone number could not be found in verification database."}));
+        redisClient.quit();
       }
       else{
         let userData = JSON.parse(reply);
@@ -120,6 +155,7 @@ app.post('/verify/:phone/:securityCode', function(req, res){
             redisClient.select(0, function(err){
               if(err){
                 res.sendStatus(500);
+                redisClient.quit();
                 return;
               }
               delete userData.securityCode;
@@ -133,11 +169,13 @@ app.post('/verify/:phone/:securityCode', function(req, res){
                   from: process.env.twilio_number // From a valid Twilio number
               });
               res.status(200).send(JSON.stringify({reply:"Code verified. Welcome to ValTexts!"}));
+              redisClient.quit();
             });
           });
         }
         else{//invalid code
           res.status(400).send(JSON.stringify({err:"Incorrect code."}));
+          redisClient.quit();
         }
       }
     });
@@ -146,7 +184,9 @@ app.post('/verify/:phone/:securityCode', function(req, res){
 
 //TODO: This should take in a phone number (which the user might have butchered) and format it as '+11234567890' with the extra '+1' at the start.
 function formatPhone(phone){
-
+  var phone2 = (""+phone).replace(/\D/g, ''); //get rid of unnecessary characters
+  var m = phone2.match(/^(\d{3})(\d{3})(\d{4})$/); //separate out the chunks
+  return (!m) ? false : "+1" + m[1] + m[2] + m[3]; //reassemble
 }
 
 //TODO: Better verification that the timeOptions are proper ie hours < 24. And maybe that there are the right number of keys in breakfast, lunch, dinner, etc.
@@ -154,7 +194,7 @@ function formatPhone(phone){
 function checkUserData(userData){
 
   try{
-    if(userData && userData.phone && userData.name
+    if(userData && userData.phone && userData.name && userData.email &&
       && userData.timeOptions && userData.timeOptions.minutes && userData.timeOptions.hours && userData.timeOptions.days && userData.timeOptions.days.length && userData.timeOptions.days.length == 7
       && userData.menuOptions && userData.menuOptions.breakfast && userData.menuOptions.lunch && userData.menuOptions.dinner){
 
@@ -182,27 +222,32 @@ function getCronStr(userData){
 
 //Returns a map of phone : cronJob
 function startAllCronJobs(){
+  let redisClient = redis.createClient(process.env.REDIS_URL);
   try{
     redisClient.select(0, (err) => {
       if(err){
         console.log(err);
+        redisClient.quit();
         return;
       }
       redisClient.keys("*", (err, keys) => {
         if(err){
           console.log(err);
+          redisClient.quit();
           return;
         }
         keys.forEach((phone) => { //each key is a phone number
             redisClient.get(phone, (err, reply) => {
               if(err){
                 console.log(err);
+                redisClient.quit();
                 return;
               }
               let userData = JSON.parse(reply)
               startCronJob(userData);
             });
           });
+          redisClient.quit();
         });
       });
   } catch (e){
@@ -211,6 +256,7 @@ function startAllCronJobs(){
         to: process.env.test_number,  // Text this number
         from: process.env.twilio_number // From a valid Twilio number
     });
+    redisClient.quit();
   }
 }
 

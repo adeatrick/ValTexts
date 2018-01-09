@@ -1,12 +1,14 @@
 var https = require('https');
 var twilio = require('twilio');
 var bl = require('bl');
-var redisClient = require('redis').createClient(process.env.REDIS_URL);
 var client = new twilio(process.env.twilio_sid, process.env.twilio_auth);
 
 module.exports.notify = function notify(userData){
 
   let d = new Date();
+  if(userData.nextDay){
+    d.setDate(d.getDate() + 1)
+  }
   let menu = getMenu(d, (menu) => {
     constructMessage(d, menu, userData.menuOptions, (message) => {
         client.messages.create({

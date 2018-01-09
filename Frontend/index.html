@@ -1,0 +1,273 @@
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+
+  <style>
+    li {margin:10px;}
+  </style>
+
+  <script type="text/javascript">
+
+    document.title = "ValTexts"
+
+    window.addEventListener("load", function (){
+      var form = document.getElementById('form_id');
+      //var userFld = form.elements['user'];
+      form.addEventListener('submit', function(event){
+
+        event.preventDefault();
+
+        let userData = {}
+        userData.name = form.elements.namedItem("Name_Personal").value;
+        userData.email = form.elements.namedItem("Email_Personal").value;
+        userData.phone = form.elements.namedItem("Phone_Personal").value;
+
+        userData.timeOptions = {}
+
+        if(form.elements.namedItem("Next Day_Time").checked)
+          userData.timeOptions.nextDay = true;
+        else
+          userData.timeOptions.nextDay = false;
+
+        userData.timeOptions.minutes = form.elements.namedItem("Time of Day_Time").value.toString().substring(3);
+        userData.timeOptions.hours = form.elements.namedItem("Time of Day_Time").value.toString().substring(0, 2);
+        userData.timeOptions.days = new Array(0);
+
+        userData.timeOptions.days[0] = form.elements.namedItem("Sunday_Time").checked;
+        userData.timeOptions.days[1] = form.elements.namedItem("Monday_Time").checked;
+        userData.timeOptions.days[2] = form.elements.namedItem("Tuesday_Time").checked;
+        userData.timeOptions.days[3] = form.elements.namedItem("Wednesday_Time").checked;
+        userData.timeOptions.days[4] = form.elements.namedItem("Thursday_Time").checked;
+        userData.timeOptions.days[5] = form.elements.namedItem("Friday_Time").checked;
+        userData.timeOptions.days[6] = form.elements.namedItem("Saturday_Time").checked;
+
+        userData.menuOptions = {}
+
+        userData.menuOptions.breakfast = {}
+        userData.menuOptions.breakfast["Breakfast/Grill"] = form.elements.namedItem("Breakfast/Grill_Breakfast").checked
+        userData.menuOptions.breakfast["Pastry Selection"] = form.elements.namedItem("Pastry Selection_Breakfast").checked
+        userData.menuOptions.breakfast["Smoothies"] = form.elements.namedItem("Smoothies_Breakfast").checked
+
+        userData.menuOptions.lunch = {}
+        userData.menuOptions.lunch["Deli"] = form.elements.namedItem("Deli_Lunch").checked
+        userData.menuOptions.lunch["Dessert"] = form.elements.namedItem("Dessert_Lunch").checked
+        userData.menuOptions.lunch["Lighter Side"] = form.elements.namedItem("Lighter Side_Lunch").checked
+        userData.menuOptions.lunch["Pasta"] = form.elements.namedItem("Pasta_Lunch").checked
+        userData.menuOptions.lunch["Salad Bar"] = form.elements.namedItem("Salad Bar_Lunch").checked
+        userData.menuOptions.lunch["Soup"] = form.elements.namedItem("Soup_Lunch").checked
+        userData.menuOptions.lunch["Traditional"] = form.elements.namedItem("Traditional_Lunch").checked
+
+        userData.menuOptions.dinner = {}
+        userData.menuOptions.dinner["Bread Selection"] = form.elements.namedItem("Bread Selection_Dinner").checked
+        userData.menuOptions.dinner["Dessert"] = form.elements.namedItem("Dessert_Dinner").checked
+        userData.menuOptions.dinner["Lighter Side"] = form.elements.namedItem("Lighter Side_Dinner").checked
+        userData.menuOptions.dinner["Pasta"] = form.elements.namedItem("Pasta_Dinner").checked
+        userData.menuOptions.dinner["Pizza"] = form.elements.namedItem("Pizza_Dinner").checked
+        userData.menuOptions.dinner["Soup"] = form.elements.namedItem("Soup_Dinner").checked
+        userData.menuOptions.dinner["Traditional"] = form.elements.namedItem("Traditional_Dinner").checked
+
+        let sendData = JSON.stringify(userData);
+
+        let XHR = new XMLHttpRequest();
+        XHR.addEventListener('load', function(event) {
+          console.log(event);
+        });
+
+        XHR.open('POST', 'https://20e5652b.ngrok.io/subscribe/' + userData.phone);
+        XHR.setRequestHeader('Content-Type', 'application/json');
+        XHR.send(sendData);
+
+        window.location.href = "https://" + window.location.hostname + "/verifyform";
+        console.log(window.location.href);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class = "row" style="margin:30px;">
+    <div class = "col-sm-6">
+      <h3 class = "text-center">Sign up</h3>
+      <form id =  "form_id">
+        <div style="margin:30px;">
+          <div class="form-group">
+            <label for="Name_Personal">Name</label>
+            <input type="text" class="form-control" id = "Name_Personal" placeholder="Enter name" required>
+          </div>
+          <div class="form-group">
+            <label for="Email_Personal">Email address</label>
+            <input type="email" class="form-control" id = "Email_Personal" placeholder="Enter email" required>
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+          </div>
+          <div class="form-group">
+            <label for="Phone_Personal">Phone</label>
+            <input type="text" class="form-control" id = "Phone_Personal" placeholder="Enter phone" required>
+            <small id="phoneHelp" class="form-text text-muted">Format: 123-456-7890</small>
+          </div>
+        </div>
+        <div style="margin:30px;">
+          <h4>Day/Time Options</h4>
+          <div class="radio" style="margin-top:25px;">
+            <label class="radio-inline" style="margin-right:15px;"><input id = "Current Day_Time" type="radio" name="optradio" required>Current Day</label>
+            <label class="radio-inline"><input id = "Next Day_Time" type="radio" name="optradio">Next Day</label>
+            <small id="radioHelp" class="form-text text-muted" style = "margin-bottom:25px">For example, if you set your time to be 9:30 PM, you would likely select "Next Day", since Val is already closed for the current day.</small>
+          </div>
+          <div class="form-group">
+            <input type="time" class="form-control" id = "Time of Day_Time" step="60" required>
+            <label for="Time of Day_Time">HH:MM AM/PM</label>
+          </div>
+          <!--TODO: Make at least one of these required.-->
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Sunday_Time">
+            <label class="form-check-label" for="Sunday_Time">Sunday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Monday_Time">
+            <label class="form-check-label" for="Monday_Time">Monday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Tuesday_Time">
+            <label class="form-check-label" for="Tuesday_Time">Tuesday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Wednesday_Time">
+            <label class="form-check-label" for="Wednesday_Time">Wednesday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Thursday_Time">
+            <label class="form-check-label" for="Thursday_Time">Thursday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Friday_Time">
+            <label class="form-check-label" for="Friday_Time">Friday</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Saturday_Time">
+            <label class="form-check-label" for="Saturday_Time">Saturday</label>
+          </div>
+        </div>
+        <div style="margin:30px;">
+          <h4>Breakfast</h4>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Breakfast/Grill_Breakfast">
+            <label class="form-check-label" for="Breakfast/Grill_Breakfast">Breakfast/Grill</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Pastry Selection_Breakfast">
+            <label class="form-check-label" for="Pastry Selection_Breakfast">Pastry Selection</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Smoothies_Breakfast">
+            <label class="form-check-label" for="Smoothies_Breakfast">Smoothies</label>
+          </div>
+        </div>
+        <div style="margin:30px;">
+          <h4>Lunch</h4>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Deli_Lunch">
+            <label class="form-check-label" for="Deli_Lunch">Deli</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Dessert_Lunch">
+            <label class="form-check-label" for="Dessert_Lunch">Dessert</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Lighter Side_Lunch">
+            <label class="form-check-label" for="Lighter Side_Lunch">Lighter Side</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Pasta_Lunch">
+            <label class="form-check-label" for="Pasta_Lunch">Pasta Lunch</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Salad Bar_Lunch">
+            <label class="form-check-label" for="Salad Bar_Lunch">Salad Bar</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Soup_Lunch">
+            <label class="form-check-label" for="Soup_Lunch">Soup</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Traditional_Lunch">
+            <label class="form-check-label" for="Traditional_Lunch">Traditional</label>
+          </div>
+        </div>
+        <div style="margin:30px;">
+          <h4>Dinner</h4>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Bread Selection_Dinner">
+            <label class="form-check-label" for="Bread Selection_Dinner">Bread Selection</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Dessert_Dinner">
+            <label class="form-check-label" for="Dessert_Dinner">Dessert</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Lighter Side_Dinner">
+            <label class="form-check-label" for="Lighter Side_Dinner">Lighter Side</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Pasta_Dinner">
+            <label class="form-check-label" for="Pasta_Dinner">Pasta</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Pizza_Dinner">
+            <label class="form-check-label" for="Pizza_Dinner">Pizza</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Soup_Dinner">
+            <label class="form-check-label" for="Soup_Dinner">Soup</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id = "Traditional_Dinner">
+            <label class="form-check-label" for="Traditional_Dinner">Traditional</label>
+          </div>
+        </div>
+        <div style="margin:30px;">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+    <div class = "col-sm-6">
+      <h3 class = "text-center">FAQ</h3>
+      <div style = "margin:30px;">
+        <ul>
+          <li>What is ValTexts?
+            <ul>
+              <li>ValTexts is a way to receive customizable texts with information about today's menu at Val.</li>
+            </ul>
+          </li>
+          <li>How do I change my preferences?
+            <ul>
+              <li>Simply sign up again on this page, and your old preferences will be automatically replaced.</li>
+            </ul>
+          </li>
+          <li>How do I unsubscribe?
+            <ul>
+              <li>Text "STOP" to the number you receive ValTexts from.</li>
+            </ul>
+          </li>
+          <li>Something with ValTexts isn't working right/I think a found a bug.
+            <ul>
+              <li>Feel free to email adeatrick[twenty][at]amherst.edu and I will look into it. Please provide screenshots!</li>
+            </ul>
+          </li>
+          <li>Does this cost money to run?
+            <ul>
+              <li>Yes.</li>
+            </ul>
+          </li>
+          <li>What happens to my data? Why do you need my email?
+            <ul>
+              <li>Your data will only ever be used for ValTexts; if you do unsubscribe, your data is instantly and fully wiped from the database.</li>
+              <li>I only want Amherst College students to use this, so I ask for an email in order to verify that. Your email won't actually be used for anything, though.</li>
+            </ul>
+          </li>
+          <li>Wow, this is so cool.
+            <ul>
+              <li>Right? And it only took me 3 fucking weeks to learn how to do everything and build it.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
