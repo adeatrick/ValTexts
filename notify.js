@@ -1,7 +1,6 @@
 var https = require('https');
 var twilio = require('twilio');
 var bl = require('bl');
-var client = new twilio(process.env.twilio_sid, process.env.twilio_auth);
 
 module.exports.notify = function notify(userData){
 
@@ -10,8 +9,9 @@ module.exports.notify = function notify(userData){
     d.setDate(d.getDate() + 1)
   }
   let menu = getMenu(d, (menu) => {
+    let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
     constructMessage(d, menu, userData.menuOptions, (message) => {
-        client.messages.create({
+        twilioClient.messages.create({
             body: message,
             to: userData.phone,  // Text this number
             from: process.env.twilio_number // From a valid Twilio number

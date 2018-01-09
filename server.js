@@ -5,7 +5,6 @@ const express = require('express');
 const app = express();
 const redis = require('redis');
 const twilio = require('twilio');
-const twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
 const MessagingResponse = twilio.twiml.MessagingResponse;
 const bodyParser = require('body-parser');
 const CronJob = require('cron').CronJob;
@@ -94,6 +93,8 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
       return;
     }
     userData.securityCode = (Math.floor(Math.random() * 900) + 100).toString(); //Random number between 100 and 999.
+
+    let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
     twilioClient.messages.create({
         body: 'Your ValTexts security code expires in five minutes: ' + userData.securityCode,
         to: phone,  // Text this number
@@ -164,7 +165,7 @@ app.post('/verify/:phone/:securityCode', function(req, res){
               redisClient.set(phone, JSON.stringify(userData));
 
               startCronJob(userData); //Schedule notification text.
-
+              let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
               twilioClient.messages.create({
                   body: "Code verified. Welcome to ValTexts!",
                   to: userData.phone,  // Text this number
@@ -253,6 +254,7 @@ function startAllCronJobs(){
         });
       });
   } catch (e){
+    let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
     twilioClient.messages.create({
         body: 'ValTexts server failed to schedule cron jobs: ' + new Date().toString(),
         to: process.env.test_number,  // Text this number
@@ -278,11 +280,3 @@ var server = app.listen(app.get('port'), function() {
   var host = server.address().address;
   var port = server.address().port;
 });
-
-/*
-twilioClient.messages.create({
-    body: 'ValTexts deployed successfully at: ' + new Date().toDateString(),
-    to: process.env.test_number,  // Text this number
-    from: process.env.twilio_number // From a valid Twilio number
-}).then((message) => console.log(message.sid));
-*/
