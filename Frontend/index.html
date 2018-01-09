@@ -1,7 +1,7 @@
 <head>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-  
+
   <style>
     li {margin:10px;}
   </style>
@@ -31,7 +31,7 @@
 
         userData.timeOptions.minutes = form.elements.namedItem("Time of Day_Time").value.toString().substring(3);
         userData.timeOptions.hours = form.elements.namedItem("Time of Day_Time").value.toString().substring(0, 2);
-        userData.timeOptions.days = new Array(0);
+        userData.timeOptions.days = new Array(7);
 
         userData.timeOptions.days[0] = form.elements.namedItem("Sunday_Time").checked;
         userData.timeOptions.days[1] = form.elements.namedItem("Monday_Time").checked;
@@ -70,14 +70,14 @@
 
         let XHR = new XMLHttpRequest();
         XHR.addEventListener('load', function(event) {
+          //TODO: Do something if this is an error.
           console.log(event);
+          window.location.href = "https://" + window.location.hostname + "/verifyform";
         });
 
         XHR.open('POST', 'https://' + window.location.hostname + '/subscribe/' + userData.phone);
         XHR.setRequestHeader('Content-Type', 'application/json');
         XHR.send(sendData);
-
-        window.location.href = "https://" + window.location.hostname + "/verifyform";
       });
     });
   </script>

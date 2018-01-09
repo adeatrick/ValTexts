@@ -87,6 +87,8 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
     let userData = req.body;
     userData.phone = phone;
 
+    console.log(JSON.stringify(userData));
+
     if(!checkUserData(userData)){ //If userData does not meet the template specifications.
       res.status(400).send(JSON.stringify({err:"userData did not meet template specifications."}));
       redisClient.quit();
@@ -100,6 +102,7 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
         to: phone,  // Text this number
         from: process.env.twilio_number // From a valid Twilio number
     }).then((message) => {
+      console.log(message);
       if(message.errorMessage){
         res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
         redisClient.quit();
