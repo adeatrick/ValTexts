@@ -32,13 +32,12 @@ app.get('/verifyform', function(req, res){
 //Receives incoming sms's
 app.post('/sms', function(req, res){
 
-  let redisClient = redis.createClient(process.env.REDIS_URL);
-  const twiml = new MessagingResponse();
-
   phone = req.body.From //Format of '+11234567890', notably including the extra +1.
   text = req.body.Body.toLowerCase()
   unsub = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"]
   if(unsub.indexOf(text) !== -1){
+    let redisClient = redis.createClient(process.env.REDIS_URL);
+    const twiml = new MessagingResponse();
     redisClient.select(0, function(){
       redisClient.get(phone, (err, reply) => {
         if(err){
@@ -87,7 +86,6 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
 
     let userData = req.body;
     userData.phone = phone;
-
     console.log(JSON.stringify(userData))
 
     if(!checkUserData(userData)){ //If userData does not meet the template specifications.
@@ -101,6 +99,7 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
         to: phone,  // Text this number
         from: process.env.twilio_number // From a valid Twilio number
     }).then((message) => {
+      console.log(JSON.stringify(message))
       if(message.errorMessage){
         res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
         redisClient.quit();

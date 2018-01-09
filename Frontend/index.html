@@ -72,13 +72,11 @@
           console.log(event);
         });
 
-        console.log('https://' + window.location.hostname + '/subscribe/' + userData.phone);
         XHR.open('POST', 'https://' + window.location.hostname + '/subscribe/' + userData.phone);
         XHR.setRequestHeader('Content-Type', 'application/json');
         XHR.send(sendData);
 
         window.location.href = "https://" + window.location.hostname + "/verifyform";
-        console.log(window.location.href);
       });
     });
   </script>
