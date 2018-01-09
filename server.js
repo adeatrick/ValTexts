@@ -32,8 +32,9 @@ app.get('/verifyform', function(req, res){
 //Receives incoming sms's
 app.post('/sms', function(req, res){
 
-  let phone = req.body.From //Format of '+11234567890', notably including the extra +1.
-  let text = req.body.Body.toLowerCase()
+  console.log(req.body);
+  let phone = req.body.From; //Format of '+11234567890', notably including the extra +1.
+  let text = req.body.Body;
   console.log(text)
   let unsub = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"];
   if(unsub.indexOf(text) !== -1){
