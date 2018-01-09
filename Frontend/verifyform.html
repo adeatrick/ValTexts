@@ -1,5 +1,6 @@
 <head>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
   <script type="text/javascript">
     document.title = "Verify"
     window.addEventListener("load", function (){
@@ -17,7 +18,7 @@
           if(XHR.status == "200")
             window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
           else
-            console.log("Error: \n\n" + event)
+            console.log("Error: \n\n" + JSON.stringify(event));
         });
 
         console.log('POST', 'https://' + window.location.hostname + '/verify/' + phone + "/" + code)
