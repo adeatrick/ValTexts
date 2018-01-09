@@ -72,7 +72,8 @@
           console.log(event);
         });
 
-        XHR.open('POST', 'https://' + window.location.hostname + 'subscribe/' + userData.phone);
+        console.log('https://' + window.location.hostname + '/subscribe/' + userData.phone);
+        XHR.open('POST', 'https://' + window.location.hostname + '/subscribe/' + userData.phone);
         XHR.setRequestHeader('Content-Type', 'application/json');
         XHR.send(sendData);
 

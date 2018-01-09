@@ -88,6 +88,8 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
     let userData = req.body;
     userData.phone = phone;
 
+    console.log(JSON.stringify(userData))
+
     if(!checkUserData(userData)){ //If userData does not meet the template specifications.
       res.status(400).send(JSON.stringify({err:"userData did not meet template specifications."}));
       redisClient.quit();
@@ -123,6 +125,7 @@ app.post('/verify/:phone/:securityCode', function(req, res){
 
   //TODO: server side verification/formatting on phone number. Should be formatted '+11234567890' with the extra '+1' at the start.
   //TODO: server side verification on options passed in body. If they don't match the expected format, reject the entry!
+
   let phone = formatPhone(querystring.unescape(req.params.phone));
   let securityCode = req.params.securityCode
 
