@@ -17,7 +17,7 @@
           if(XHR.status == "200")
             window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
           else
-            console.log("Error!")
+            console.log("Error: \n\n" + event)
         });
 
         console.log('POST', 'https://' + window.location.hostname + '/verify/' + phone + "/" + code)
@@ -44,7 +44,7 @@
           <div class="form-group">
             <label for="code">Security Code</label>
             <input type="text" class="form-control" id = "code" placeholder="Enter security code" required>
-            <small id="codeHelp" class="form-text text-muted">You should receive this by text from the number you just entered.</small>
+            <small id="codeHelp" class="form-text text-muted">You should receive this by text from the number you entered on the previous page.</small>
           </div>
         <div style="margin:30px;">
           <button type="submit" class="btn btn-primary">Submit</button>

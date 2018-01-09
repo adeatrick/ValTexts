@@ -72,7 +72,7 @@
           console.log(event);
         });
 
-        XHR.open('POST', 'https://20e5652b.ngrok.io/subscribe/' + userData.phone);
+        XHR.open('POST', 'https://' + window.location.hostname + 'subscribe/' + userData.phone);
         XHR.setRequestHeader('Content-Type', 'application/json');
         XHR.send(sendData);
 
