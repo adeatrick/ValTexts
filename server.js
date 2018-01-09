@@ -194,7 +194,7 @@ function formatPhone(phone){
 function checkUserData(userData){
 
   try{
-    if(userData && userData.phone && userData.name && userData.email &&
+    if(userData && userData.phone && userData.name && userData.email
       && userData.timeOptions && userData.timeOptions.minutes && userData.timeOptions.hours && userData.timeOptions.days && userData.timeOptions.days.length && userData.timeOptions.days.length == 7
       && userData.menuOptions && userData.menuOptions.breakfast && userData.menuOptions.lunch && userData.menuOptions.dinner){
 
