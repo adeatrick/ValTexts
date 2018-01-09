@@ -19,6 +19,7 @@ var cronJobMap = {};
 app.set('port', (process.env.PORT || 5000));
 app.disable('x-powered-by');
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
