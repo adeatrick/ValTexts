@@ -64,7 +64,7 @@ app.post('/sms', function(req, res){
     });
   }
   else{
-    twiml.message("For help and FAQ, please visit https://WhatsAtVal.com. To unsubscribe, text \"STOP\"");
+    twiml.message("For help and FAQ, please visit https://valtexts.herokuapp.com. To view today's menu, visit https://whatsatval.com. To unsubscribe, text \"STOP\"");
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(twiml.toString());
   }
