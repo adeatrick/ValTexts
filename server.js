@@ -11,15 +11,12 @@ const CronJob = require('cron').CronJob;
 var Notifier = require('./notify')
 var cronJobMap = {};
 
-// ==============================================
-// TODO: Implement current day vs. next day menu functionality.
-// TODO: Make it so that an incoming text reading something specific like "Current" or "Val Now" texts back the day's full menu, or maybe the next meal.
-// ==============================================
-
 app.set('port', (process.env.PORT || 5000));
 app.disable('x-powered-by');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
+
+// =============================================
 
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
@@ -28,6 +25,15 @@ app.get('/', function(req, res){
 app.get('/verifyform', function(req, res){
   res.sendFile(path.join(__dirname, 'Frontend', 'verifyform.html'));
 });
+
+app.get('/favicon.ico', function(req, res){
+  res.sendFile(path.join(__dirname, 'Frontend', 'favicon.ico'));
+});
+
+// =============================================
+
+//TODO: implement "Breakfast" "Lunch" "Dinner" commands that respond with the next meal of that sort.
+//Maybe a "Next" that sends the next meal, whatever it is? Also "Tomorrow" etc etc.
 
 //Receives incoming sms's
 app.post('/sms', function(req, res){
@@ -72,7 +78,7 @@ app.post('/sms', function(req, res){
 });
 
 //Receives new signups
-app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a userdata object passed as the request body.
+app.post('/subscribe/:phone', function(req, res){
 
   let redisClient = redis.createClient(process.env.REDIS_URL);
 
@@ -124,9 +130,6 @@ app.post('/subscribe/:phone', function(req, res){//TODO: Replace this with a use
 });
 
 app.post('/verify/:phone/:securityCode', function(req, res){
-
-  //TODO: server side verification/formatting on phone number. Should be formatted '+11234567890' with the extra '+1' at the start.
-  //TODO: server side verification on options passed in body. If they don't match the expected format, reject the entry!
 
   let phone = formatPhone(querystring.unescape(req.params.phone));
   let securityCode = req.params.securityCode

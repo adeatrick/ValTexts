@@ -69,10 +69,12 @@
         let sendData = JSON.stringify(userData);
 
         let XHR = new XMLHttpRequest();
+
+        //TODO: Read out error if one exists, and don't redirect the user to the verify form.
         XHR.addEventListener('load', function(event) {
-          //TODO: Do something if this is an error.
           console.log(event);
-          window.location.href = "https://" + window.location.hostname + "/verifyform";
+          console.log(this.responseText)
+          //window.location.href = "https://" + window.location.hostname + "/verifyform";
         });
 
         XHR.open('POST', '../subscribe/' + userData.phone);
@@ -83,6 +85,11 @@
   </script>
 </head>
 <body>
+  <div class = "row" style = "margin-top:30px">
+    <div class = "col-sm-12">
+      <h2 class = "text-center">ValTexts</h2>
+    </div>
+  </div>
   <div class = "row" style="margin:30px;">
     <div class = "col-sm-6">
       <h3 class = "text-center">Sign up</h3>
@@ -232,7 +239,7 @@
         <ul>
           <li>What is ValTexts?
             <ul>
-              <li>ValTexts is a way to receive customizable texts with information about today's menu at Val.</li>
+              <li>ValTexts is a way to receive customizable texts with info about today's menu at Val.</li>
             </ul>
           </li>
           <li>How do I change my preferences?

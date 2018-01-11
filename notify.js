@@ -8,7 +8,7 @@ module.exports.notify = function notify(userData){
   if(userData.nextDay){
     d.setDate(d.getDate() + 1)
   }
-  let menu = getMenu(d, (menu) => {
+  getMenu(d, (menu) => {
     let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
     constructMessage(d, menu, userData.menuOptions, (message) => {
         twilioClient.messages.create({
@@ -51,15 +51,15 @@ function getMenu(d, callback){
   });
 }
 
-//menuOptions is an object
-//breakfast, lunch, dinner are objects within that object
+//TODO: Make it so that it only doesn't say "Breakfast: " if the menuOptions don't ask for any info on breakfast ie all options are false.
 
-function constructMessage(d, menu, menuOptions, callback){
+//Constructs a message
+function constructMessage(d, menu, menuOptions, callback){ //menuOptions is an object; breakfast, lunch, dinner are objects within that object
 
   let msg = d.toDateString() + "\n\n"
   let meals = Object.keys(menuOptions)
   meals.forEach((mealName) => {
-    msg += ("-----" + mealName.toUpperCase() + "-----"+ "\n") //TODO: this should only happen if at least one of the menuOptions for that meal is true. Ie don't say "Breakfast: " if the menuOptions don't ask for any info on breakfast.
+    msg += ("-----" + mealName.toUpperCase() + "-----"+ "\n")
     let meal = menuOptions[mealName] //meal now is the menuOptions object referenced by, say, "breakfast".
     foodStations = Object.keys(meal)
     foodStations.forEach(foodStation => {

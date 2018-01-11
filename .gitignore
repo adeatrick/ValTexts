@@ -8,3 +8,9 @@ npm-debug.log
 #testing scripts
 testsubscribe.js
 testverify.js
+
+#key
+Scheduled/private.txt
+
+#GetMenu testing
+Scheduled/Menus
