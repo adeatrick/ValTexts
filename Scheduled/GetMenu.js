@@ -4,7 +4,7 @@ var fs = require('fs');
 let Client = require('ssh2').Client;
 const redis = require('redis');
 let redisClient = redis.createClient(process.env.REDIS_URL); //TODO: Make this work. Need to stop storing any local files.
-let privateKey = process.env.ftp_private_key
+let key = process.env.ftp_private_key.replace(/{-}/g, '\n');
 
 let baseUrl = 'https://www.amherst.edu/campuslife/housing-dining/dining/menu/';
 console.log("STARTING GETMENU: " + new Date())
@@ -147,7 +147,7 @@ function getNextParagraphContents(dataString){
 
 function saveMenu(menu, name, date){
 
-  let path = "../tmp/Menus/" + name + ".json";
+  let path = __dirname + "/../tmp/" + name + ".json";
 
   fs.writeFile(path, JSON.stringify(menu), function(err) {
       if(err) {
@@ -174,7 +174,7 @@ function uploadMenus(filePaths){
     port: '18765',
     username: 'whatsatv',
     password: process.env.ftp_password,
-    privateKey: privateKey,
+    privateKey: key,
     passphrase: process.env.ftp_passphrase
   });
 }
