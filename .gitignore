@@ -10,9 +10,6 @@ testsubscribe.js
 testverify.js
 
 #key
-Scheduled/private.txt
-
-#GetMenu testing
-Scheduled/Menus
+private.txt
 
 Scheduled/ReplaceNewLines.js
