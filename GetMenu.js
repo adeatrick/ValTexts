@@ -147,7 +147,7 @@ function getNextParagraphContents(dataString){
 
 function saveMenu(menu, name, date){
 
-  let path = __dirname + "/tmp/" + name + ".json";
+  let path = __dirname + "/Scheduled/" + name + ".json";
 
   fs.writeFile(path, JSON.stringify(menu), function(err) {
       if(err) {
