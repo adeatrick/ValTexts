@@ -30,11 +30,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 var apiLimiter = new RateLimit({
-  windowMs: 10*60*1000, // 10 minutes
-  max: 10,
+  windowMs: 2000, // 1 second
+  max: 5,
   delayMs: 0, // disabled
   statusCode: 429,
-  message: JSON.stringify({err:"RateLimit exceeded. Try again in 10 minutes."})
+  message: JSON.stringify({err:"Traffic too heavy. Please try submitting again."})
 });
 app.use('/api/', apiLimiter);
 
