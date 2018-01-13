@@ -30,14 +30,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 var apiLimiter = new RateLimit({
-  windowMs: 2000, // 1 second
-  max: 5,
+  windowMs: 2000, // 2 seconds
+  max: 10,
   delayMs: 0, // disabled
   statusCode: 429,
   message: JSON.stringify({err:"Traffic too heavy. Please try submitting again."})
 });
 app.use('/api/', apiLimiter);
-
 
 // =============================================
 
@@ -121,6 +120,11 @@ app.post('/api/subscribe/:phone', function(req, res){
       redisClient.quit();
       return;
     }
+    else if(!checkMenuOptions(userData.menuOptions)){ //If userData does not meet the template specifications.
+      res.status(400).send(JSON.stringify({err:"You must opt to receive at least one menu option."}));
+      redisClient.quit();
+      return;
+    }
     userData.securityCode = (Math.floor(Math.random() * 90000) + 10000).toString(); //Random number between 10000 and 99999.
 
     let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
@@ -129,7 +133,7 @@ app.post('/api/subscribe/:phone', function(req, res){
         to: phone,  // Text this number
         from: process.env.twilio_number // From a valid Twilio number
     }).then((message) => {
-      console.log(message);
+      //console.log(message);
       if(message.errorMessage){
         res.status(400).send(JSON.stringify({err:"Phone wasn't formatted correctly or was invalid."}));
         redisClient.quit();
@@ -236,6 +240,23 @@ function checkUserData(userData){
     console.log("verifyUserData exception successfuly caught: \n\n" + e);
     return false;
   }
+}
+
+function checkMenuOptions(menuOptions){
+  if(checkMealOptions(menuOptions, "breakfast") || checkMealOptions(menuOptions, "lunch") || checkMealOptions(menuOptions, "dinner"))
+    return true; //this might not work
+  else
+    return false;
+}
+
+function checkMealOptions(menuOptions, meal){
+  mealOptions = Object.keys(menuOptions[meal]);
+
+  for(let i = 0; i < mealOptions.length; i++){
+    if(menuOptions[meal][mealOptions[i]]) //ie menuOptions.lunch.Traditional (or the i'th element etc etc)
+      return true;
+  }
+  return false;
 }
 
 //Returns a cron string for when to run a certain

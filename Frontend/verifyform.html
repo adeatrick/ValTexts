@@ -15,7 +15,9 @@
         let code = form.elements.namedItem("code").value;
 
         let xhr = new XMLHttpRequest();
-        xhr.addEventListener('load', function(event) {
+        xhr.timeout = 5000;
+
+        xhr.onload = function() {
           if(xhr.status == 200){ //OKAY
             window.location.href = "https://whatsatval.com";
           }
@@ -24,18 +26,28 @@
             var tempInnerDiv = document.createElement("DIV");
             errorDiv.innerHTML = "";
             tempInnerDiv.style.backgroundColor = "red";
-            let res = JSON.parse(this.responseText);
-            if(res.err){
+            try{
+              let res = JSON.parse(this.responseText);
               tempInnerDiv.appendChild(document.createTextNode(xhr.status + ": " + res.err));
-            }
-            else{
+            } catch(e){
               tempInnerDiv.appendChild(document.createTextNode(xhr.status + ": " + this.responseText));
             }
             errorDiv.appendChild(tempInnerDiv);
             tempInnerDiv.classList.add("animated");
             tempInnerDiv.classList.add("fadeInDown");
           }
-        });
+        }
+
+        xhr.ontimeout = function(e){
+          var errorDiv = document.getElementById("errorDiv");
+          var tempInnerDiv = document.createElement("DIV");
+          errorDiv.innerHTML = "";
+          tempInnerDiv.style.backgroundColor = "red";
+          tempInnerDiv.appendChild(document.createTextNode("REQUEST TIMOUT"));
+          errorDiv.appendChild(tempInnerDiv);
+          tempInnerDiv.classList.add("animated");
+          tempInnerDiv.classList.add("fadeInDown");
+        }
 
         xhr.open('POST', '../api/verify/' + phone + "/" + code);
         xhr.send();
