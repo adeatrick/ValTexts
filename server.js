@@ -190,7 +190,7 @@ app.post('/verify/:phone/:securityCode', function(req, res){
   });
 });
 
-//TODO: This should take in a phone number (which the user might have butchered) and format it as '+11234567890' with the extra '+1' at the start.
+//Formats a phone number, returns it in format "+11234567890"; note the extra "+1"
 function formatPhone(phone){
   var phone2 = (""+phone).replace(/\D/g, ''); //get rid of unnecessary characters
   var m = phone2.match(/^(\d{3})(\d{3})(\d{4})$/); //separate out the chunks

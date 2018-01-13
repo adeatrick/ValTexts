@@ -59,11 +59,13 @@ function constructMessage(d, menu, menuOptions, callback){ //menuOptions is an o
   let msg = d.toDateString() + "\n\n"
   let meals = Object.keys(menuOptions)
   meals.forEach((mealName) => {
-    msg += ("-----" + mealName.toUpperCase() + "-----"+ "\n")
     let meal = menuOptions[mealName] //meal now is the menuOptions object referenced by, say, "breakfast".
     foodStations = Object.keys(meal)
     foodStations.forEach(foodStation => {
       if(meal[foodStation] && menu[mealName][foodStation]){
+        if(msg.indexOf(mealName.toUpperCase()) === -1){
+          msg += ("-----" + mealName.toUpperCase() + "-----"+ "\n")
+        }
         food = menu[mealName][foodStation] //food is now a string containing the menu's information on whatever that foodStation is serving for the day
         msg += (foodStation.toUpperCase() + ": " + food + "\n")
       }

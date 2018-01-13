@@ -3,7 +3,7 @@ var bl = require('bl');
 var fs = require('fs');
 let Client = require('ssh2').Client;
 const redis = require('redis');
-let redisClient = redis.createClient(process.env.REDIS_URL); //TODO: Make this work. Need to stop storing any local files.
+let redisClient = redis.createClient(process.env.REDIS_URL);
 let k = process.env.ftp_private_key.replace(/{-}/g, '\n');
 
 let baseUrl = 'https://www.amherst.edu/campuslife/housing-dining/dining/menu/';

@@ -10,6 +10,4 @@ testsubscribe.js
 testverify.js
 
 #key
-private.txt
-
-Scheduled/ReplaceNewLines.js
+Scheduled/private.txt
