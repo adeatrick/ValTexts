@@ -8,13 +8,36 @@ const twilio = require('twilio');
 const MessagingResponse = twilio.twiml.MessagingResponse;
 const bodyParser = require('body-parser');
 const CronJob = require('cron').CronJob;
+const RateLimit = require('express-rate-limit');
 var Notifier = require('./notify')
 var cronJobMap = {};
 
+// ========== MIDDLEWARE =======================
+
 app.set('port', (process.env.PORT || 5000));
 app.disable('x-powered-by');
+
+app.use(function(req, res, next) {
+  if(req.headers['x-forwarded-proto'] !== 'https') {
+    var secureUrl = "https://" + req.headers.host + req.url;
+    return res.redirect(secureUrl);
+  }
+  next();
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
+
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+var apiLimiter = new RateLimit({
+  windowMs: 10*60*1000, // 10 minutes
+  max: 10,
+  delayMs: 0, // disabled
+  statusCode: 429,
+  message: JSON.stringify({err:"RateLimit exceeded. Try again in 10 minutes."})
+});
+app.use('/api/', apiLimiter);
+
 
 // =============================================
 
@@ -36,7 +59,7 @@ app.get('/favicon.ico', function(req, res){
 //Maybe a "Next" that sends the next meal, whatever it is? Also "Tomorrow" etc etc.
 
 //Receives incoming sms's
-app.post('/sms', function(req, res){
+app.post('/api/sms', function(req, res){
 
   let phone = req.body.From; //Format of '+11234567890', notably including the extra +1.
   let text = req.body.Body;
@@ -78,7 +101,7 @@ app.post('/sms', function(req, res){
 });
 
 //Receives new signups
-app.post('/subscribe/:phone', function(req, res){
+app.post('/api/subscribe/:phone', function(req, res){
 
   let redisClient = redis.createClient(process.env.REDIS_URL);
 
@@ -92,8 +115,6 @@ app.post('/subscribe/:phone', function(req, res){
 
     let userData = req.body;
     userData.phone = phone;
-
-    console.log(JSON.stringify(userData));
 
     if(!checkUserData(userData)){ //If userData does not meet the template specifications.
       res.status(400).send(JSON.stringify({err:"userData did not meet template specifications."}));
@@ -129,7 +150,7 @@ app.post('/subscribe/:phone', function(req, res){
   });
 });
 
-app.post('/verify/:phone/:securityCode', function(req, res){
+app.post('/api/verify/:phone/:securityCode', function(req, res){
 
   let phone = formatPhone(querystring.unescape(req.params.phone));
   let securityCode = req.params.securityCode
@@ -162,7 +183,7 @@ app.post('/verify/:phone/:securityCode', function(req, res){
           redisClient.del(phone, (err, reply) => {
             redisClient.select(0, function(err){
               if(err){
-                res.sendStatus(500);
+                res.status(500).send({err:"Database error."});
                 redisClient.quit();
                 return;
               }

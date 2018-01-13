@@ -68,18 +68,31 @@
 
         let sendData = JSON.stringify(userData);
 
-        let XHR = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
 
         //TODO: Read out error if one exists, and don't redirect the user to the verify form.
-        XHR.addEventListener('load', function(event) {
-          console.log(event);
-          console.log(this.responseText)
-          //window.location.href = "https://" + window.location.hostname + "/verifyform";
+        xhr.addEventListener('load', function(event) {
+
+          if(xhr.status == 200){ //OKAY
+            window.location.href = "https://" + window.location.hostname + "/verifyform";
+          }
+          else{
+            var errorDiv = document.getElementById("errorDiv");
+            errorDiv.innerHTML = "";
+            let res = JSON.parse(this.responseText);
+            if(res.err){
+              errorDiv.appendChild(document.createTextNode(xhr.status + ": " + res.err));
+            }
+            else{
+              errorDiv.appendChild(document.createTextNode(xhr.status + ": " + this.responseText));
+            }
+            errorDiv.style.backgroundColor = "red";
+          }
         });
 
-        XHR.open('POST', '../subscribe/' + userData.phone);
-        XHR.setRequestHeader('Content-Type', 'application/json');
-        XHR.send(sendData);
+        xhr.open('POST', '../api/subscribe/' + userData.phone);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(sendData);
       });
     });
   </script>
@@ -227,6 +240,9 @@
             <input type="checkbox" class="form-check-input" id = "Traditional_Dinner">
             <label class="form-check-label" for="Traditional_Dinner">Traditional</label>
           </div>
+        </div>
+        <div id = "errorDiv">
+
         </div>
         <div style="margin:30px;">
           <button type="submit" class="btn btn-primary">Submit</button>

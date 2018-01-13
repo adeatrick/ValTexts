@@ -13,16 +13,27 @@
         let phone = form.elements.namedItem("phone").value;
         let code = form.elements.namedItem("code").value;
 
-        let XHR = new XMLHttpRequest();
-        XHR.addEventListener('load', function(event) {
-          if(XHR.status == "200")
-            window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; //lol rickroll
-          else
-            console.log("Error: \n\n" + JSON.stringify(event));
+        let xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', function(event) {
+          if(xhr.status == 200){ //OKAY
+            window.location.href = "https://whatsatval.com";
+          }
+          else{
+            var errorDiv = document.getElementById("errorDiv");
+            errorDiv.innerHTML = "";
+            let res = JSON.parse(this.responseText);
+            if(res.err){
+              errorDiv.appendChild(document.createTextNode(xhr.status + ": " + res.err));
+            }
+            else{
+              errorDiv.appendChild(document.createTextNode(xhr.status + ": " + this.responseText));
+            }
+            errorDiv.style.backgroundColor = "red";
+          }
         });
 
-        XHR.open('POST', '../verify/' + phone + "/" + code);
-        XHR.send();
+        xhr.open('POST', '../api/verify/' + phone + "/" + code);
+        xhr.send();
       });
     });
   </script>
@@ -45,6 +56,8 @@
             <input type="text" class="form-control" id = "code" placeholder="Enter security code" required>
             <small id="codeHelp" class="form-text text-muted">You should this receive three-digit number by text from the number you entered on the previous page.</small>
           </div>
+        <div id = "errorDiv">
+        </div>
         <div style="margin:30px;">
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>

@@ -51,8 +51,6 @@ function getMenu(d, callback){
   });
 }
 
-//TODO: Make it so that it only doesn't say "Breakfast: " if the menuOptions don't ask for any info on breakfast ie all options are false.
-
 //Constructs a message
 function constructMessage(d, menu, menuOptions, callback){ //menuOptions is an object; breakfast, lunch, dinner are objects within that object
 
@@ -70,7 +68,7 @@ function constructMessage(d, menu, menuOptions, callback){ //menuOptions is an o
         msg += (foodStation.toUpperCase() + ": " + food + "\n")
       }
     });
-    msg += "\n\n"
+    msg += "\n\n"; //TODO: Fix this - should only be added if we added a menu item from, say, Breakfast. So no extra new lines before Lunch when not needed etc etc
   });
   callback(msg)
 }
