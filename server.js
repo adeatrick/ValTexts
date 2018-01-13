@@ -121,7 +121,7 @@ app.post('/api/subscribe/:phone', function(req, res){
       redisClient.quit();
       return;
     }
-    userData.securityCode = (Math.floor(Math.random() * 900) + 100).toString(); //Random number between 100 and 999.
+    userData.securityCode = (Math.floor(Math.random() * 90000) + 10000).toString(); //Random number between 10000 and 99999.
 
     let twilioClient = new twilio(process.env.twilio_sid, process.env.twilio_auth);
     twilioClient.messages.create({
