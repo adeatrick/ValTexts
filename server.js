@@ -58,7 +58,7 @@ app.get('/favicon.ico', function(req, res){
 //Maybe a "Next" that sends the next meal, whatever it is? Also "Tomorrow" etc etc.
 
 //Receives incoming sms's
-app.post('/api/sms', function(req, res){
+app.post('/api/incoming', function(req, res){
 
   let phone = req.body.From; //Format of '+11234567890', notably including the extra +1.
   let text = req.body.Body;
