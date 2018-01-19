@@ -61,9 +61,9 @@ app.get('/favicon.ico', function(req, res){
 app.post('/api/incoming', function(req, res){
 
   let phone = req.body.From; //Format of '+11234567890', notably including the extra +1.
-  let text = req.body.Body;
+  let text = req.body.Body.toLowerCase();
   let unsub = ["stop", "stopall", "unsubscribe", "cancel", "end", "quit"];
-  if(unsub.indexOf(text) !== -1){
+  if(unsub.indexOf(text) !== -1 && text.length == unsub[unsub.indexOf(text)].length){
     let redisClient = redis.createClient(process.env.REDIS_URL);
     redisClient.select(0, function(){
       redisClient.get(phone, (err, reply) => {
@@ -93,7 +93,7 @@ app.post('/api/incoming', function(req, res){
   }
   else{
     const twiml = new MessagingResponse();
-    twiml.message("For help and FAQ, please visit https://valtexts.herokuapp.com. To view today's menu, visit https://whatsatval.com. To unsubscribe, text \"STOP\"");
+    twiml.message("For help and FAQ: https://valtexts.com.\nTo view today's menu: https://whatsatval.com.\nTo unsubscribe, text \"STOP\"");
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(twiml.toString());
   }
