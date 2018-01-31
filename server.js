@@ -263,7 +263,8 @@ function checkMealOptions(menuOptions, meal){
 function getCronStr(userData){
   let dayStr = "";
   for(var i = 0; i < userData.timeOptions.days.length; i++){
-    dayStr += (i + ",")
+    if(userData.timeOptions.days[i])
+      dayStr += (i + ",");
   }
   dayStr = dayStr.substring(0, dayStr.length - 1);
 
