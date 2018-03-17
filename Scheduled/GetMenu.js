@@ -1,6 +1,7 @@
 var https = require('https');
 var bl = require('bl');
 var fs = require('fs');
+var path = require('path');
 let Client = require('ssh2').Client;
 const redis = require('redis');
 let redisClient = redis.createClient(process.env.REDIS_URL);
@@ -9,11 +10,7 @@ let k = process.env.ftp_private_key.replace(/{-}/g, '\n');
 let baseUrl = 'https://www.amherst.edu/campuslife/housing-dining/dining/menu/';
 console.log("STARTING GETMENU: " + new Date())
 
-let maxWeeks;
-if(process.argv[2])
-  maxWeeks = process.argv[2];
-else
-  maxWeeks = 2;
+let maxWeeks = 2;
 
 getData(new Date(), new Array(0), baseUrl, 0); //Line that actually does things.
 
@@ -147,17 +144,18 @@ function getNextParagraphContents(dataString){
 
 function saveMenu(menu, name, date){
 
-  let path = __dirname + "/" + name + ".json";
+  let fn = name + ".json"
+  let curr = path.resolve(__dirname, fn);
 
-  fs.writeFile(path, JSON.stringify(menu), function(err) {
+  fs.writeFile(curr, JSON.stringify(menu), function(err) {
       if(err) {
         return console.log(err);
       }
 
-      console.log(name + " saved to localhost!");
+      console.log(fn + " saved to localhost!");
   });
 
-  return path;
+  return curr;
 }
 
 function uploadMenus(filePaths){
@@ -183,12 +181,23 @@ function uploadNextMenu(filePaths, i, sftp, conn){
 
   //console.log("made it");
 
-  let path = filePaths[i];
-  let name = path.substring(path.lastIndexOf("/") + 1, path.length);
+  let curr = filePaths[i];
 
-  sftp.fastPut(path, "./public_html/menus/" + name, function(err){
-    if(err)
+  console.log(filePaths[i]);
+
+  let name = curr.substring(curr.lastIndexOf("\\") + 1, curr.length);
+
+  let dest = "./public_html/menus/" + name;
+
+  sftp.fastPut(curr, dest, function(err){
+    if(err){
+      sftp.readdir("/", function(err, list) {
+        if (err) throw err;
+        console.dir(list);
+      });
+      console.log(dest);
       return console.log(err);
+    }
 
     console.log(name + " ----transferred succesfully" );
     if(i < filePaths.length - 1){ //7 days in a week and we increment i below, so i must be <6
@@ -196,6 +205,7 @@ function uploadNextMenu(filePaths, i, sftp, conn){
     } else {
       console.log( "sftp connection closed" );
       conn.end();
+      process.exit();
     }
   });
 }
