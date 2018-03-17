@@ -187,11 +187,11 @@ function uploadNextMenu(filePaths, i, sftp, conn){
 
   let name = curr.substring(curr.lastIndexOf("\\") + 1, curr.length);
 
-  let dest = "/home/whatsatv/public_html/menus/" + name;
+  let dest = "./public_html/menus/" + name;
 
   sftp.fastPut(curr, dest, function(err){
     if(err){
-      sftp.readdir("/", function(err, list) {
+      sftp.readdir("./", function(err, list) {
         if (err) throw err;
         console.dir(list);
       });
