@@ -187,7 +187,7 @@ function uploadNextMenu(filePaths, i, sftp, conn){
 
   let name = curr.substring(curr.lastIndexOf("\\") + 1, curr.length);
 
-  let dest = "./public_html/menus/" + name;
+  let dest = "/home/whatsatv/public_html/menus/" + name;
 
   sftp.fastPut(curr, dest, function(err){
     if(err){
@@ -199,7 +199,7 @@ function uploadNextMenu(filePaths, i, sftp, conn){
       return console.log(err);
     }
 
-    console.log(name + " ----transferred succesfully" );
+    console.log(dest + " ----transferred succesfully" );
     if(i < filePaths.length - 1){ //7 days in a week and we increment i below, so i must be <6
       uploadNextMenu(filePaths, i + 1, sftp, conn)
     } else {
